@@ -1,0 +1,198 @@
+/* ============================================================
+   Dashboard — page-specific layout only.
+   NO .card, .btn, .header-section, .text-muted, .progress-bar,
+   .progress-fill — those live in App.css.
+   ============================================================ */
+
+.dashboard {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ── Streak card ────────────────────────────────────────────── */
+.streak-card {
+  background: linear-gradient(
+    135deg,
+    rgba(139, 92, 246, 0.2),
+    rgba(6, 182, 212, 0.15)
+  ) !important;
+  border-color: rgba(139, 92, 246, 0.4) !important;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.2) !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.streak-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.08) 0%, transparent 60%);
+  animation: pulse 4s infinite;
+  pointer-events: none;
+}
+
+.trophy {
+  font-size: 48px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  animation: float 3s ease-in-out infinite;
+}
+
+.streak-info {
+  position: relative;
+  z-index: 1;
+}
+
+.streak-card .streak-info h2 {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #EDE9FE, #A78BFA);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.streak-card .streak-info p {
+  color: rgba(237, 233, 254, 0.7);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 4px 0 0 0;
+}
+
+/* ── Macro grid ─────────────────────────────────────────────── */
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  margin-top: 8px;
+}
+
+.macro-item {
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.macro-ring {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2),
+              inset 0 0 15px rgba(139, 92, 246, 0.05);
+}
+
+/* Per-macro accent colours */
+.macro-item:nth-child(1) .macro-ring {
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.2), inset 0 0 15px rgba(6, 182, 212, 0.05);
+}
+.macro-item:nth-child(2) .macro-ring {
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.2), inset 0 0 15px rgba(245, 158, 11, 0.05);
+}
+.macro-item:nth-child(3) .macro-ring {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.2), inset 0 0 15px rgba(16, 185, 129, 0.05);
+}
+.macro-item:nth-child(4) .macro-ring {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2), inset 0 0 15px rgba(139, 92, 246, 0.05);
+}
+
+.macro-item:hover .macro-ring {
+  transform: scale(1.08);
+}
+
+.macro-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-dark);
+}
+
+.macro-target {
+  font-size: 11px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.macro-item p {
+  font-size: 12px;
+  color: var(--text-light);
+  text-align: center;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Action buttons ─────────────────────────────────────────── */
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin: 4px 0 0 0;
+}
+
+.action-buttons .btn {
+  margin-top: 0;
+}
+
+/* ── Recommendations ────────────────────────────────────────── */
+.recommendations {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recommendations li {
+  padding: 12px 14px;
+  border-left: 3px solid rgba(16, 185, 129, 0.6);
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  background: rgba(16, 185, 129, 0.06);
+  color: var(--text-dark);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.recommendations li:hover {
+  background: rgba(16, 185, 129, 0.12);
+  transform: translateX(4px);
+  border-left-color: #10B981;
+}
+
+/* ── Utility ────────────────────────────────────────────────── */
+.container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.py-20 {
+  padding: 20px 0;
+}
