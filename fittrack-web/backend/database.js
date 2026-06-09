@@ -156,9 +156,9 @@ const initialize = () => {
         accessed_at TEXT NOT NULL,
         FOREIGN KEY (user_id) REFERENCES users(id)
       )
-    `);
-
-    console.log('✓ Database initialized');
+    `, () => {
+      console.log('✓ Database initialized');
+    });
   });
 };
 
