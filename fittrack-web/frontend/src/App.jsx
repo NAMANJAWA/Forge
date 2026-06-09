@@ -5,9 +5,10 @@ import Dashboard from './pages/Dashboard';
 import Workouts from './pages/Workouts';
 import Nutrition from './pages/Nutrition';
 import Analytics from './pages/Analytics';
+import MacroSettings from './pages/MacroSettings';
 import { userAPI, workoutAPI, mealAPI, analyticsAPI } from './utils/api';
 
-const tabs = ['Dashboard', 'Workouts', 'Nutrition', 'Analytics'];
+const tabs = ['Dashboard', 'Workouts', 'Nutrition', 'Macros', 'Analytics'];
 
 function StarField() {
   const stars = useMemo(() => {
@@ -87,23 +88,33 @@ function App() {
     initUser();
   }, []);
 
-  const fetchUserData = async (userId) => {
+  const fetchUserData = async (userId, refreshUser = false) => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      const [workouts, foods, mealsByDate, macros, analytics] = await Promise.all([
+      const promises = [
         workoutAPI.getWorkouts(userId),
         mealAPI.getFoods(),
         mealAPI.getMealsByDate(userId, today),
         mealAPI.getMacrosByDate(userId, today),
         analyticsAPI.getStreak(userId)
-      ]);
+      ];
+      
+      if (refreshUser) {
+        promises.push(userAPI.getProfile(userId));
+      }
+
+      const results = await Promise.all(promises);
+      
+      if (refreshUser && results.length > 5) {
+        setUser(results[5].data);
+      }
 
       setData({
-        workouts: workouts.data || [],
-        foods: foods.data || [],
-        meals: mealsByDate.data || [],
-        todayMacros: macros.data || {},
-        streak: analytics.data?.currentStreak || 0
+        workouts: results[0].data || [],
+        foods: results[1].data || [],
+        meals: results[2].data || [],
+        todayMacros: results[3].data || {},
+        streak: results[4].data?.currentStreak || 0
       });
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -117,11 +128,13 @@ function App() {
   const renderTab = () => {
     switch (activeTab) {
       case 'Dashboard':
-        return <Dashboard user={user} data={data} onNavigate={setActiveTab} />;
+        return <Dashboard user={user} data={data} onNavigate={setActiveTab} onUpdate={() => fetchUserData(user?.id, true)} />;
       case 'Workouts':
-        return <Workouts userId={user?.id} data={data} />;
+        return <Workouts userId={user?.id} data={data} onWorkoutSaved={() => fetchUserData(user?.id)} />;
       case 'Nutrition':
-        return <Nutrition userId={user?.id} user={user} data={data} />;
+        return <Nutrition userId={user?.id} user={user} data={data} onMealSaved={() => fetchUserData(user?.id)} />;
+      case 'Macros':
+        return <MacroSettings user={user} onUpdate={() => fetchUserData(user?.id, true)} />;
       case 'Analytics':
         return <Analytics userId={user?.id} data={data} />;
       default:
@@ -148,6 +161,7 @@ function App() {
               {tab === 'Dashboard' && '📊'}
               {tab === 'Workouts' && '🏋️'}
               {tab === 'Nutrition' && '🍽️'}
+              {tab === 'Macros' && '🎉'}
               {tab === 'Analytics' && '📈'}
               <span>{tab}</span>
             </button>

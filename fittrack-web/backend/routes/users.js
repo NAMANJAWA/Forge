@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
 
     // Calculate TDEE and macros
     const tdee = calculateTDEE(current_weight_kg, height_cm, age, gender, activity_level);
-    const macros = calculateMacros(current_weight_kg, tdee, goal);
+    const macros = calculateMacros(current_weight_kg, tdee, goal, target_weight_kg);
 
     await db.run(
       `INSERT INTO users (id, height_cm, current_weight_kg, target_weight_kg, age, gender, activity_level, goal, daily_calorie_target, daily_protein_g, daily_carbs_g, daily_fat_g, created_at, updated_at)
@@ -52,7 +52,7 @@ router.put('/:id', async (req, res) => {
     // Recalculate macros if needed
     const weight = current_weight_kg || user.current_weight_kg;
     const tdee = calculateTDEE(weight, user.height_cm, user.age, user.gender, activity_level || user.activity_level);
-    const macros = calculateMacros(weight, tdee, goal || user.goal);
+    const macros = calculateMacros(weight, tdee, goal || user.goal, target_weight_kg || user.target_weight_kg);
 
     await db.run(
       `UPDATE users SET current_weight_kg = ?, target_weight_kg = ?, activity_level = ?, goal = ?, daily_calorie_target = ?, daily_protein_g = ?, daily_carbs_g = ?, daily_fat_g = ?, updated_at = ?

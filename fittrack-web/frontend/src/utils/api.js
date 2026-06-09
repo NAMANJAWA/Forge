@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -23,6 +23,7 @@ export const workoutAPI = {
 
 export const mealAPI = {
   getFoods: () => api.get('/meals/foods/list'),
+  createCustomFood: (data) => api.post('/meals/foods/custom', data),
   createMeal: (data) => api.post('/meals', data),
   getMealsByDate: (userId, date) => api.get(`/meals/${userId}/date/${date}`),
   getMacrosByDate: (userId, date) => api.get(`/meals/${userId}/macros/${date}`),
