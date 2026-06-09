@@ -3,7 +3,9 @@
     "allow": [
       "Skill(run)",
       "Skill(run:*)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\naman\\\\Documents\\\\GitHub\\\\Forge\\\\fittrack-web\" -Recurse -Depth 2)"
     ]
   }
 }

@@ -5,10 +5,9 @@ import Dashboard from './pages/Dashboard';
 import Workouts from './pages/Workouts';
 import Nutrition from './pages/Nutrition';
 import Analytics from './pages/Analytics';
-import MacroSettings from './pages/MacroSettings';
 import { userAPI, workoutAPI, mealAPI, analyticsAPI } from './utils/api';
 
-const tabs = ['Dashboard', 'Workouts', 'Nutrition', 'Macros', 'Analytics'];
+const tabs = ['Dashboard', 'Workouts', 'Nutrition', 'Analytics'];
 
 function StarField() {
   const stars = useMemo(() => {
@@ -57,6 +56,7 @@ function App() {
     streak: 0
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const init = async () => {
@@ -144,20 +144,46 @@ function App() {
     return <div className="app loading">Loading FitTrack...</div>;
   }
 
+  const refreshData = async () => {
+    const userId = user?.id;
+    if (!userId) return;
+
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const [workouts, foods, mealsByDate, macros, analytics] = await Promise.all([
+        workoutAPI.getWorkouts(userId),
+        mealAPI.getFoods(),
+        mealAPI.getMealsByDate(userId, today),
+        mealAPI.getMacrosByDate(userId, today),
+        analyticsAPI.getStreak(userId)
+      ]);
+
+      setData({
+        workouts: workouts.data || [],
+        foods: foods.data || [],
+        meals: mealsByDate.data || [],
+        todayMacros: macros.data || {},
+        streak: analytics.data?.currentStreak || 0
+      });
+      setError(null);
+    } catch (err) {
+      console.error('Error refreshing data:', err);
+      setError('Failed to refresh data. Please try again.');
+    }
+  };
+
   const renderTab = () => {
     switch (activeTab) {
       case 'Dashboard':
-        return <Dashboard user={user} data={data} onNavigate={setActiveTab} onUpdate={() => {}} />;
+        return <Dashboard user={user} data={data} onNavigate={setActiveTab} onUpdate={refreshData} />;
       case 'Workouts':
-        return <Workouts userId={user?.id} data={data} onWorkoutSaved={() => {}} />;
+        return <Workouts userId={user?.id} data={data} onWorkoutSaved={refreshData} />;
       case 'Nutrition':
-        return <Nutrition userId={user?.id} user={user} data={data} onMealSaved={() => {}} />;
-      case 'Macros':
-        return <MacroSettings user={user} onUpdate={() => {}} />;
+        return <Nutrition userId={user?.id} user={user} data={data} onMealSaved={refreshData} />;
       case 'Analytics':
         return <Analytics userId={user?.id} data={data} />;
       default:
-        return <Dashboard user={user} data={data} onNavigate={setActiveTab} />;
+        return <Dashboard user={user} data={data} onNavigate={setActiveTab} onUpdate={refreshData} />;
     }
   };
 
@@ -193,6 +219,12 @@ function App() {
         {message.text && (
           <div className={`notification notification-${message.type}`}>
             {message.text}
+          </div>
+        )}
+
+        {error && (
+          <div className="notification notification-error">
+            {error}
           </div>
         )}
       </div>
