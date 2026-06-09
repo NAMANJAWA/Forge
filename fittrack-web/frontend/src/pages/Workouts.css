@@ -235,10 +235,10 @@
 }
 
 .set-row {
-  display: grid;
-  grid-template-columns: 55px 70px auto 80px auto;
-  gap: 6px;
+  display: flex;
+  gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .set-number {
@@ -247,6 +247,7 @@
   color: var(--text-light);
   text-transform: uppercase;
   white-space: nowrap;
+  min-width: 50px;
 }
 
 .set-row .separator {
@@ -267,6 +268,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .btn-remove-set:hover {
@@ -305,7 +307,7 @@
 }
 
 .input-small {
-  width: 100%;
+  width: 70px;
   padding: 9px 6px;
   border: 1px solid rgba(139, 92, 246, 0.2);
   border-radius: 6px;
@@ -475,14 +477,14 @@
 }
 
 .set-item {
-  display: grid;
-  grid-template-columns: 60px 1fr;
+  display: flex;
   gap: 10px;
   align-items: center;
   padding: 8px 10px;
   background: rgba(255, 255, 255, 0.04);
   border-radius: 6px;
   border: 1px solid rgba(139, 92, 246, 0.1);
+  flex-wrap: wrap;
 }
 
 .set-number {
@@ -496,6 +498,8 @@
   font-size: 12px;
   font-weight: 600;
   color: #C4B5FD;
+  flex: 1;
+  min-width: 100px;
 }
 
 .exercise-title-row {
@@ -559,6 +563,7 @@
   gap: 6px;
   align-items: center;
   flex: 1;
+  min-width: 150px;
 }
 
 .edit-input-small {
@@ -652,7 +657,6 @@
   }
 
   .set-row {
-    grid-template-columns: 50px 60px 65px 32px;
     gap: 6px;
   }
 
@@ -798,4 +802,14 @@
     font-size: 12px;
     align-self: flex-end;
   }
+}
+
+
+/* ── Expanded Workout Content ───────────────────────────── */
+.workout-expanded-content {
+  padding: 16px;
+  border-top: 1px solid rgba(139, 92, 246, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

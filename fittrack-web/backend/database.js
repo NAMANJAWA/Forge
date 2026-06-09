@@ -18,7 +18,7 @@ const initialize = () => {
   const database = getDB();
   database.serialize(() => {
     // Users table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         height_cm INTEGER NOT NULL,
@@ -38,7 +38,7 @@ const initialize = () => {
     `);
 
     // Weight history table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS weight_history (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -50,7 +50,7 @@ const initialize = () => {
     `);
 
     // Workouts table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS workouts (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -64,7 +64,7 @@ const initialize = () => {
     `);
 
     // Exercise logs table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS exercise_logs (
         id TEXT PRIMARY KEY,
         workout_id TEXT NOT NULL,
@@ -80,7 +80,7 @@ const initialize = () => {
     `);
 
     // Foods table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS foods (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -94,7 +94,7 @@ const initialize = () => {
     `);
 
     // Meals table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS meals (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -106,7 +106,7 @@ const initialize = () => {
     `);
 
     // Meal items table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS meal_items (
         id TEXT PRIMARY KEY,
         meal_id TEXT NOT NULL,
@@ -119,7 +119,7 @@ const initialize = () => {
     `);
 
     // Macro history table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS macro_history (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -134,7 +134,7 @@ const initialize = () => {
     `);
 
     // Notifications table
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS notifications (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
@@ -148,7 +148,7 @@ const initialize = () => {
     `);
 
     // Activity log for re-engagement tracking
-    db.run(`
+    database.run(`
       CREATE TABLE IF NOT EXISTS activity_log (
         id TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,

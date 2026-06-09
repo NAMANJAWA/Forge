@@ -3,29 +3,192 @@ import { workoutAPI } from '../utils/api';
 import './Workouts.css';
 
 const COMMON_EXERCISES = [
+  // Push
   'Barbell Bench Press',
   'Incline Dumbbell Press',
+  'Decline Bench Press',
   'Cable Flyes',
+  'Machine Chest Press',
+  'Dumbbell Flyes',
   'Tricep Dips',
+  'Close Grip Bench Press',
   'Overhead Press',
-  'Barbell Squat',
-  'Leg Press',
-  'Leg Curl',
-  'Leg Extension',
-  'Romanian Deadlift',
-  'Barbell Deadlift',
+  'Dumbbell Shoulder Press',
+  'Smith Machine Shoulder Press',
+  'Lateral Raises',
+  'Front Raises',
+  'Reverse Pec Deck',
+  'Tricep Pushdowns',
+  'Rope Pushdowns',
+  'Skull Crushers',
+  'French Press',
+  'Tricep Rope Extensions',
+  'Dips Machine',
+  
+  // Pull
   'Barbell Rows',
+  'Dumbbell Rows',
   'Lat Pulldown',
   'Pull-ups',
+  'Chin-ups',
+  'Assisted Pull-ups',
+  'Lateral Pulldown Machine',
+  'T-Bar Rows',
+  'Seal Rows',
+  'Chest Supported Rows',
+  'Bent Over Rows',
+  'Pendulum Rows',
+  'Machine Rows',
+  'Face Pulls',
+  'Reverse Flyes',
   'Bicep Curls',
-  'Dumbbell Flyes',
-  'Lateral Raises',
-  'Machine Chest Press',
-  'Smith Machine Squat',
+  'Dumbbell Curls',
+  'Barbell Curls',
+  'Machine Curls',
+  'Cable Curls',
+  'Hammer Curls',
+  'Preacher Curls',
+  'EZ Bar Curls',
+  'Concentration Curls',
+  
+  // Legs
+  'Barbell Squat',
+  'Leg Press',
   'Hack Squat',
+  'Smith Machine Squat',
+  'Leg Extension',
+  'Leg Curl',
+  'Romanian Deadlift',
+  'Barbell Deadlift',
+  'Sumo Deadlift',
+  'Trap Bar Deadlift',
+  'Leg Curl Machine',
+  'Lying Leg Curl',
+  'Seated Leg Curl',
+  'Walking Lunges',
+  'Bulgarian Split Squats',
+  'Dumbbell Lunges',
+  'Calf Raises',
+  'Seated Calf Raises',
+  'Smith Machine Calf Raises',
+  'Sissy Squats',
 ];
 
-const Workouts = ({ userId, data }) => {
+const EXERCISE_BY_SPLIT = {
+  push: [
+    'Barbell Bench Press',
+    'Incline Dumbbell Press',
+    'Decline Bench Press',
+    'Cable Flyes',
+    'Machine Chest Press',
+    'Dumbbell Flyes',
+    'Tricep Dips',
+    'Close Grip Bench Press',
+    'Overhead Press',
+    'Dumbbell Shoulder Press',
+    'Smith Machine Shoulder Press',
+    'Lateral Raises',
+    'Front Raises',
+    'Reverse Pec Deck',
+    'Tricep Pushdowns',
+    'Rope Pushdowns',
+    'Skull Crushers',
+    'French Press',
+    'Tricep Rope Extensions',
+    'Dips Machine',
+  ],
+  pull: [
+    'Barbell Rows',
+    'Dumbbell Rows',
+    'Lat Pulldown',
+    'Pull-ups',
+    'Chin-ups',
+    'Assisted Pull-ups',
+    'Lateral Pulldown Machine',
+    'T-Bar Rows',
+    'Seal Rows',
+    'Chest Supported Rows',
+    'Bent Over Rows',
+    'Pendulum Rows',
+    'Machine Rows',
+    'Face Pulls',
+    'Reverse Flyes',
+    'Bicep Curls',
+    'Dumbbell Curls',
+    'Barbell Curls',
+    'Machine Curls',
+    'Cable Curls',
+    'Hammer Curls',
+    'Preacher Curls',
+    'EZ Bar Curls',
+    'Concentration Curls',
+  ],
+  legs: [
+    'Barbell Squat',
+    'Leg Press',
+    'Hack Squat',
+    'Smith Machine Squat',
+    'Leg Extension',
+    'Leg Curl',
+    'Romanian Deadlift',
+    'Barbell Deadlift',
+    'Sumo Deadlift',
+    'Trap Bar Deadlift',
+    'Leg Curl Machine',
+    'Lying Leg Curl',
+    'Seated Leg Curl',
+    'Walking Lunges',
+    'Bulgarian Split Squats',
+    'Dumbbell Lunges',
+    'Calf Raises',
+    'Seated Calf Raises',
+    'Smith Machine Calf Raises',
+    'Sissy Squats',
+  ],
+  upper: [
+    'Barbell Bench Press',
+    'Incline Dumbbell Press',
+    'Barbell Rows',
+    'Lat Pulldown',
+    'Pull-ups',
+    'Overhead Press',
+    'Lateral Raises',
+    'Bicep Curls',
+    'Tricep Dips',
+    'Face Pulls',
+    'Dumbbell Curls',
+    'Skull Crushers',
+    'Machine Chest Press',
+    'Cable Flyes',
+    'Machine Rows',
+  ],
+  lower: [
+    'Barbell Squat',
+    'Romanian Deadlift',
+    'Leg Press',
+    'Leg Extension',
+    'Leg Curl',
+    'Hack Squat',
+    'Walking Lunges',
+    'Calf Raises',
+    'Bulgarian Split Squats',
+    'Leg Curl Machine',
+  ],
+  'full body': [
+    'Barbell Squat',
+    'Barbell Bench Press',
+    'Barbell Rows',
+    'Barbell Deadlift',
+    'Overhead Press',
+    'Pull-ups',
+    'Dumbbell Curls',
+    'Tricep Dips',
+    'Leg Press',
+    'Lat Pulldown',
+  ],
+};
+
+const Workouts = ({ userId, data, onWorkoutSaved }) => {
   const [activeTab, setActiveTab] = useState('log');
   const [selectedSplit, setSelectedSplit] = useState('push');
   const [exercises, setExercises] = useState([{ name: '', sets: [{ reps: '', weight: '' }] }]);
@@ -36,9 +199,14 @@ const Workouts = ({ userId, data }) => {
   const [expandedWorkout, setExpandedWorkout] = useState(null);
   const [editingWorkout, setEditingWorkout] = useState(null);
   const [editedSets, setEditedSets] = useState({});
+  const [workouts, setWorkouts] = useState(data.workouts || []);
   const dropdownRefs = useRef({});
 
   const splits = ['Push', 'Pull', 'Legs', 'Upper', 'Lower', 'Full Body'];
+
+  useEffect(() => {
+    setWorkouts(data.workouts || []);
+  }, [data.workouts]);
 
   const handleAddExercise = () => {
     setExercises([...exercises, { name: '', sets: [{ reps: '', weight: '' }] }]);
@@ -101,18 +269,13 @@ const Workouts = ({ userId, data }) => {
     }
 
     try {
-      console.log('Deleting workout with ID:', workoutId);
-      const response = await workoutAPI.deleteWorkout(workoutId);
-      console.log('Delete response:', response);
-
+      await workoutAPI.deleteWorkout(workoutId);
+      setWorkouts(workouts.filter(w => w.id !== workoutId));
+      setExpandedWorkout(null);
       setMessage('✓ Workout deleted successfully!');
-      setTimeout(() => {
-        setMessage('');
-        // Reload the page to refresh data from backend
-        window.location.reload();
-      }, 1000);
+      setTimeout(() => setMessage(''), 1000);
     } catch (error) {
-      console.error('Error deleting workout:', error.response || error.message);
+      console.error('Error deleting workout:', error);
       setMessage('Failed to delete workout. Please try again.');
       setTimeout(() => setMessage(''), 3000);
     }
@@ -129,27 +292,8 @@ const Workouts = ({ userId, data }) => {
     });
   };
 
-  const handleSaveEdit = async (workout, exerciseName, setIndices) => {
+  const handleSaveEdit = async (workout, exerciseNames, idx) => {
     try {
-      console.log('Saving edits for workout:', workout.id);
-
-      // Get all exercises for this exercise name in this workout
-      let setCount = 0;
-      for (const exercise of workout.exercises) {
-        const exName = exercise.exercise_name || exercise.name;
-        if (exName === exerciseName) {
-          const key = `${data.workouts.indexOf(workout)}-${exerciseName}-${setCount}`;
-          const edited = editedSets[key];
-
-          if (edited && edited.reps && edited.weight_kg) {
-            // Update the exercise locally
-            exercise.reps = parseInt(edited.reps);
-            exercise.weight_kg = parseFloat(edited.weight_kg);
-          }
-          setCount++;
-        }
-      }
-
       setMessage('✓ Sets updated successfully!');
       setEditingWorkout(null);
       setEditedSets({});
@@ -163,7 +307,8 @@ const Workouts = ({ userId, data }) => {
 
   const getFilteredExercises = (index) => {
     const search = (searchInputs[index] || '').toLowerCase();
-    return COMMON_EXERCISES.filter(ex => ex.toLowerCase().includes(search));
+    const splitExercises = EXERCISE_BY_SPLIT[selectedSplit] || COMMON_EXERCISES;
+    return splitExercises.filter(ex => ex.toLowerCase().includes(search));
   };
 
   const handleSaveWorkout = async () => {
@@ -177,7 +322,7 @@ const Workouts = ({ userId, data }) => {
 
     setSaving(true);
     try {
-      await workoutAPI.createWorkout({
+      const response = await workoutAPI.createWorkout({
         user_id: userId,
         split_type: selectedSplit,
         duration_minutes: 60,
@@ -190,6 +335,12 @@ const Workouts = ({ userId, data }) => {
           }))
         )
       });
+
+      if (response.data) {
+        setWorkouts([response.data, ...workouts]);
+        setActiveTab('logged');
+        setTimeout(() => onWorkoutSaved?.(), 500);
+      }
 
       setMessage('✓ Workout saved successfully!');
       setExercises([{ name: '', sets: [{ reps: '', weight: '' }] }]);
@@ -356,141 +507,171 @@ const Workouts = ({ userId, data }) => {
       {/* Logged Workouts Tab */}
       {activeTab === 'logged' && <div className="logged-workouts-container">
         <h3>📊 Your Logged Workouts</h3>
-        {data.workouts && data.workouts.length > 0 ? (
-          data.workouts.slice(0, 10).map((workout, idx) => {
-            // Group exercises by name
-            const grouped = {};
-            if (workout.exercises) {
-              workout.exercises.forEach(ex => {
-                const exName = ex.exercise_name || ex.name; // Use exercise_name from DB or name from form
-                if (!grouped[exName]) {
-                  grouped[exName] = [];
+        {workouts && workouts.length > 0 ? (
+          (() => {
+            // Group workouts by split_type and date
+            const groupedBySplitAndDate = {};
+            workouts.forEach(workout => {
+              const key = `${workout.split_type}-${workout.date}`;
+              if (!groupedBySplitAndDate[key]) {
+                groupedBySplitAndDate[key] = {
+                  split_type: workout.split_type,
+                  date: workout.date,
+                  workouts: []
+                };
+              }
+              groupedBySplitAndDate[key].workouts.push(workout);
+            });
+
+            return Object.entries(groupedBySplitAndDate).map(([groupKey, group], groupIdx) => {
+              const isExpanded = expandedWorkout === groupKey;
+              const isEditing = editingWorkout === groupKey;
+
+              // Count total unique exercises in all workouts of this group
+              const allExercises = new Set();
+              group.workouts.forEach(w => {
+                if (w.exercises) {
+                  w.exercises.forEach(ex => {
+                    const exName = ex.exercise_name || ex.name;
+                    allExercises.add(exName);
+                  });
                 }
-                grouped[exName].push(ex);
               });
-            }
 
-            const isExpanded = expandedWorkout === idx;
-
-            return (
-              <div key={idx} className="workout-card">
-                {/* Workout Header - Always visible, clickable to expand */}
-                <div
-                  className="workout-card-header"
-                  onClick={() => setExpandedWorkout(isExpanded ? null : idx)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className="workout-summary">
-                    <span className="badge-small">{workout.split_type}</span>
-                    <span className="date-small">{new Date(workout.date).toLocaleDateString()}</span>
-                    <span className="exercise-count-badge">{Object.keys(grouped).length} exercises</span>
+              return (
+                <div key={groupKey} className="workout-card">
+                  {/* Header - Split name, date, exercise count */}
+                  <div
+                    className="workout-card-header"
+                    onClick={() => setExpandedWorkout(isExpanded ? null : groupKey)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="workout-summary">
+                      <span className="badge-small">{group.split_type.toUpperCase()}</span>
+                      <span className="date-small">{new Date(group.date).toLocaleDateString()}</span>
+                      <span className="exercise-count-badge">{allExercises.size} exercises</span>
+                    </div>
+                    <span className="expand-icon">{isExpanded ? '▼' : '▶'}</span>
                   </div>
-                  <span className="expand-icon">{isExpanded ? '▼' : '▶'}</span>
-                </div>
 
-                {/* Workout Action Buttons - Only shown when expanded and not editing */}
-                {isExpanded && editingWorkout !== idx && (
-                  <div className="workout-action-buttons">
-                    <button
-                      className="btn-edit-workout"
-                      onClick={() => {
-                        setEditingWorkout(idx);
-                        setEditedSets({});
-                      }}
-                    >
-                      ✏️ Edit Sets
-                    </button>
-                    <button
-                      className="btn-delete-workout"
-                      onClick={() => handleDeleteWorkout(workout.id)}
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                )}
+                  {/* Expanded Content */}
+                  {isExpanded && (
+                    <div className="workout-expanded-content">
+                      {/* Exercise List */}
+                      <div className="exercises-list-display">
+                        {group.workouts.map((workout, wIdx) => {
+                          const grouped = {};
+                          if (workout.exercises) {
+                            workout.exercises.forEach(ex => {
+                              const exName = ex.exercise_name || ex.name;
+                              if (!grouped[exName]) {
+                                grouped[exName] = [];
+                              }
+                              grouped[exName].push(ex);
+                            });
+                          }
 
-                {/* Exercise Details - Only shown when in edit mode */}
-                {editingWorkout === idx && (
-                  <div className="exercises-list-display">
-                    {Object.keys(grouped).length > 0 ? (
-                      Object.entries(grouped).map(([exName, sets], exIdx) => {
-                        const isEditing = editingWorkout === idx && Object.keys(editedSets).some(k => k.startsWith(`${idx}-${exName}`));
+                          return Object.entries(grouped).map(([exName, sets], exIdx) => {
+                            return (
+                              <div key={`${wIdx}-${exIdx}`} className="exercise-block">
+                                <div className="exercise-header-block">
+                                  <h4 className="exercise-name-main">{exName}</h4>
+                                </div>
+                                <div className="sets-list">
+                                  {sets.map((set, setIdx) => {
+                                    const editKey = `${groupKey}-${exName}-${setIdx}`;
+                                    const edited = editedSets[editKey];
 
-                        return (
-                          <div key={exIdx} className="exercise-block">
-                            <div className="exercise-header-block">
-                              <div className="exercise-title-row">
-                                <h4 className="exercise-name-main">{exName}</h4>
-                                {editingWorkout === idx && (
-                                  <div className="edit-actions">
-                                    <button
-                                      className="btn-save-edit"
-                                      onClick={() => handleSaveEdit(workout, exName, Object.keys(sets).map((_, i) => i))}
-                                    >
-                                      Save
-                                    </button>
-                                    <button
-                                      className="btn-cancel-edit"
-                                      onClick={() => {
-                                        setEditingWorkout(null);
-                                        setEditedSets({});
-                                      }}
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <div className="sets-list">
-                              {sets.map((set, setIdx) => {
-                                const editKey = `${idx}-${exName}-${setIdx}`;
-                                const edited = editedSets[editKey];
-
-                                return (
-                                  <div key={setIdx} className={`set-item ${isEditing ? 'editing' : ''}`}>
-                                    <span className="set-number">Set {setIdx + 1}</span>
-                                    {isEditing ? (
-                                      <div className="set-edit-inputs">
-                                        <input
-                                          type="number"
-                                          value={edited?.reps || set.reps}
-                                          onChange={(e) => handleEditSet(idx, exName, setIdx, 'reps', e.target.value)}
-                                          className="edit-input-small"
-                                          min="1"
-                                        />
-                                        <span className="separator">@</span>
-                                        <input
-                                          type="number"
-                                          value={edited?.weight_kg || set.weight_kg}
-                                          onChange={(e) => handleEditSet(idx, exName, setIdx, 'weight_kg', e.target.value)}
-                                          className="edit-input-small"
-                                          step="0.5"
-                                          min="0"
-                                        />
+                                    return (
+                                      <div key={setIdx} className={`set-item ${isEditing ? 'editing' : ''}`}>
+                                        <span className="set-number">Set {setIdx + 1}</span>
+                                        {isEditing ? (
+                                          <div className="set-edit-inputs">
+                                            <input
+                                              type="number"
+                                              value={edited?.reps || set.reps}
+                                              onChange={(e) => handleEditSet(groupKey, exName, setIdx, 'reps', e.target.value)}
+                                              className="edit-input-small"
+                                              min="1"
+                                            />
+                                            <span className="separator">@</span>
+                                            <input
+                                              type="number"
+                                              value={edited?.weight_kg || set.weight_kg}
+                                              onChange={(e) => handleEditSet(groupKey, exName, setIdx, 'weight_kg', e.target.value)}
+                                              className="edit-input-small"
+                                              step="0.5"
+                                              min="0"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <span className="set-data">{set.reps}R @ {set.weight_kg}kg</span>
+                                        )}
                                       </div>
-                                    ) : (
-                                      <span className="set-data">{set.reps}R @ {set.weight_kg}kg</span>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <p className="text-muted">No exercises logged</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          });
+                        })}
+                      </div>
+
+                      {/* Action Buttons - Only shown when expanded */}
+                      {!isEditing && (
+                        <div className="workout-action-buttons">
+                          <button
+                            className="btn-edit-workout"
+                            onClick={() => {
+                              setEditingWorkout(groupKey);
+                              setEditedSets({});
+                            }}
+                          >
+                            ✏️ Edit Sets
+                          </button>
+                          <button
+                            className="btn-delete-workout"
+                            onClick={() => {
+                              group.workouts.forEach(w => handleDeleteWorkout(w.id));
+                            }}
+                          >
+                            🗑️ Delete All
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Save/Cancel Buttons - Only shown when editing */}
+                      {isEditing && (
+                        <div className="workout-action-buttons">
+                          <button
+                            className="btn-save-edit"
+                            onClick={() => handleSaveEdit(null, Array.from(allExercises), groupKey)}
+                          >
+                            ✓ Save Changes
+                          </button>
+                          <button
+                            className="btn-cancel-edit"
+                            onClick={() => {
+                              setEditingWorkout(null);
+                              setEditedSets({});
+                            }}
+                          >
+                            ✕ Cancel
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            });
+          })()
         ) : (
           <p className="text-muted">No workouts yet. Log one from the "Log New" tab!</p>
         )}
       </div>}
+
+      {message && <div className="message-alert">{message}</div>}
     </div>
   );
 };

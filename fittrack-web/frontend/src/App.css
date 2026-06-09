@@ -431,9 +431,11 @@ html, body {
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(139, 92, 246, 0.2);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   z-index: 100;
-}
+  width: 100%;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  background: rgba(6, 2, 18, 0.95);
 
 .nav-btn {
   background: transparent;
@@ -569,8 +571,10 @@ html, body {
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .bottom-nav { height: 68px; }
-  .app { padding-bottom: 76px; }
+  .bottom-nav { height: 65px; grid-template-columns: repeat(5, 1fr); }
+  .app { padding-bottom: 72px; }
+  .nav-btn span { font-size: 9px; }
+  .nav-btn { gap: 2px; }
   .theme-toggle { top: 14px; right: 14px; width: 38px; height: 38px; font-size: 17px; }
   .header-section h1,
   .header-section h2 { font-size: 24px; }
