@@ -49,17 +49,22 @@ function App() {
   const { theme, toggleTheme, message } = appContext || { theme: 'universe', toggleTheme: () => {}, message: { type: '', text: '' } };
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [user, setUser] = useState(null);
-  const [data, setData] = useState({});
+  const [data, setData] = useState({
+    workouts: [],
+    foods: [],
+    meals: [],
+    todayMacros: {},
+    streak: 0
+  });
   const [loading, setLoading] = useState(true);
 
-  // Initialize or get existing user
   useEffect(() => {
-    const initUser = async () => {
+    const init = async () => {
       try {
-        const userId = localStorage.getItem('fittrack_user_id');
+        let userId = localStorage.getItem('fittrack_user_id');
 
         if (!userId) {
-          // Create default user
+          console.log('Creating new user');
           const newUser = await userAPI.createProfile({
             height_cm: 178,
             current_weight_kg: 79,
@@ -69,57 +74,71 @@ function App() {
             activity_level: 'moderate',
             goal: 'cut'
           });
-          localStorage.setItem('fittrack_user_id', newUser.data.id);
+          userId = newUser.data.id;
+          localStorage.setItem('fittrack_user_id', userId);
           setUser(newUser.data);
-          fetchUserData(newUser.data.id);
         } else {
+          console.log('Getting existing user');
           const userProfile = await userAPI.getProfile(userId);
           setUser(userProfile.data);
-          fetchUserData(userId);
         }
+
+        const today = new Date().toISOString().split('T')[0];
+        
+        try {
+          console.log('Fetching workouts');
+          const workouts = await workoutAPI.getWorkouts(userId);
+          console.log('Workouts fetched');
+          setData(prev => ({ ...prev, workouts: workouts.data || [] }));
+        } catch (e) {
+          console.error('Workouts error:', e);
+        }
+
+        try {
+          console.log('Fetching foods');
+          const foods = await mealAPI.getFoods();
+          console.log('Foods fetched');
+          setData(prev => ({ ...prev, foods: foods.data || [] }));
+        } catch (e) {
+          console.error('Foods error:', e);
+        }
+
+        try {
+          console.log('Fetching meals');
+          const meals = await mealAPI.getMealsByDate(userId, today);
+          console.log('Meals fetched');
+          setData(prev => ({ ...prev, meals: meals.data || [] }));
+        } catch (e) {
+          console.error('Meals error:', e);
+        }
+
+        try {
+          console.log('Fetching macros');
+          const macros = await mealAPI.getMacrosByDate(userId, today);
+          console.log('Macros fetched');
+          setData(prev => ({ ...prev, todayMacros: macros.data || {} }));
+        } catch (e) {
+          console.error('Macros error:', e);
+        }
+
+        try {
+          console.log('Fetching streak');
+          const streak = await analyticsAPI.getStreak(userId);
+          console.log('Streak fetched');
+          setData(prev => ({ ...prev, streak: streak.data?.currentStreak || 0 }));
+        } catch (e) {
+          console.error('Streak error:', e);
+        }
+
+        setLoading(false);
       } catch (error) {
-        console.error('Error initializing user:', error);
-        alert('Failed to connect to backend. Make sure backend is running on http://localhost:5000');
-      } finally {
+        console.error('Init error:', error);
         setLoading(false);
       }
     };
 
-    initUser();
+    init();
   }, []);
-
-  const fetchUserData = async (userId, refreshUser = false) => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const promises = [
-        workoutAPI.getWorkouts(userId),
-        mealAPI.getFoods(),
-        mealAPI.getMealsByDate(userId, today),
-        mealAPI.getMacrosByDate(userId, today),
-        analyticsAPI.getStreak(userId)
-      ];
-      
-      if (refreshUser) {
-        promises.push(userAPI.getProfile(userId));
-      }
-
-      const results = await Promise.all(promises);
-      
-      if (refreshUser && results.length > 5) {
-        setUser(results[5].data);
-      }
-
-      setData({
-        workouts: results[0].data || [],
-        foods: results[1].data || [],
-        meals: results[2].data || [],
-        todayMacros: results[3].data || {},
-        streak: results[4].data?.currentStreak || 0
-      });
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
 
   if (loading) {
     return <div className="app loading">Loading FitTrack...</div>;
@@ -128,13 +147,13 @@ function App() {
   const renderTab = () => {
     switch (activeTab) {
       case 'Dashboard':
-        return <Dashboard user={user} data={data} onNavigate={setActiveTab} onUpdate={() => fetchUserData(user?.id, true)} />;
+        return <Dashboard user={user} data={data} onNavigate={setActiveTab} onUpdate={() => {}} />;
       case 'Workouts':
-        return <Workouts userId={user?.id} data={data} onWorkoutSaved={() => fetchUserData(user?.id)} />;
+        return <Workouts userId={user?.id} data={data} onWorkoutSaved={() => {}} />;
       case 'Nutrition':
-        return <Nutrition userId={user?.id} user={user} data={data} onMealSaved={() => fetchUserData(user?.id)} />;
+        return <Nutrition userId={user?.id} user={user} data={data} onMealSaved={() => {}} />;
       case 'Macros':
-        return <MacroSettings user={user} onUpdate={() => fetchUserData(user?.id, true)} />;
+        return <MacroSettings user={user} onUpdate={() => {}} />;
       case 'Analytics':
         return <Analytics userId={user?.id} data={data} />;
       default:
@@ -150,7 +169,6 @@ function App() {
       <div className="app-container">
         {renderTab()}
 
-        {/* Bottom Navigation */}
         <nav className="bottom-nav">
           {tabs.map(tab => (
             <button
@@ -168,12 +186,10 @@ function App() {
           ))}
         </nav>
 
-        {/* Theme Toggle */}
         <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
           {theme === 'light' ? '🌌' : '✨'}
         </button>
 
-        {/* Message Notification */}
         {message.text && (
           <div className={`notification notification-${message.type}`}>
             {message.text}
