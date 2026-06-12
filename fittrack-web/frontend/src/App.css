@@ -624,6 +624,44 @@ html, body {
   box-shadow: 0 0 20px rgba(100, 116, 139, 0.15);
 }
 
+/* ── Logout button ──────────────────────────────────────────── */
+.logout-btn {
+  position: fixed;
+  top: 20px;
+  right: 76px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.logout-btn:hover {
+  transform: scale(1.15) rotate(-20deg);
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+[data-theme="light"] .logout-btn {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+[data-theme="light"] .logout-btn:hover {
+  background: rgba(220, 38, 38, 0.25);
+  border-color: rgba(220, 38, 38, 0.5);
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.15);
+}
+
 /* ── Notifications ──────────────────────────────────────────── */
 .notification {
   position: fixed;

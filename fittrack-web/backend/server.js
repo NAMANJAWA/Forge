@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 
 const db = require('./database');
+const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const workoutRoutes = require('./routes/workouts');
 const mealRoutes = require('./routes/meals');
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 db.initialize();
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/workouts', workoutRoutes);
 app.use('/api/meals', mealRoutes);

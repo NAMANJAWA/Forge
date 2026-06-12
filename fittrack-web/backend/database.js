@@ -21,6 +21,8 @@ const initialize = () => {
     database.run(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
+        email TEXT UNIQUE,
+        password TEXT,
         height_cm INTEGER NOT NULL,
         current_weight_kg REAL NOT NULL,
         target_weight_kg REAL NOT NULL,
